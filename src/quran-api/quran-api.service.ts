@@ -136,15 +136,18 @@ export class QuranApiService {
     }
 
     async getRandomAyahFromSurah(surahId: number, reciterId: number, tafsirId: number): Promise<any> {
-        const url = `${this.baseUrl}/chapters/${surahId}/info`;
+        const url = `${this.baseUrl}/verses/random`;
 
         const authToken = await this.getValidAccessToken();
         const headers = this.generateHeaders(authToken);
 
         const params = {
             chapter_number: surahId,
-            audio: reciterId,
-            tafsirs: tafsirId,
+            audio: reciterId.toString(),
+            tafsirs: tafsirId.toString(),
+            fields: "text_uthmani,image_url",
+            word_fields: "text_uthmani",
+            translations: "85"
         };
 
         try {

@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { QuranApiService } from './quran-api.service';
 
 @Controller('quran-api')
@@ -28,5 +28,10 @@ export class QuranApiController {
     @Get('surahs/:id/info')
     async getSurahInfo(@Param('id') id: string) {
         return this.quranApiService.getSurahInfo(Number(id));
+    }
+
+    @Get('random-ayah-from-surah/:id')
+    async getRandomAyahFromSurah(@Param('id') id: string, @Query('reciterId') reciterId?: string, @Query('tafsirId') tafsirId?: string) {
+        return this.quranApiService.getRandomAyahFromSurah(Number(id), Number(reciterId), Number(tafsirId));
     }
 }
