@@ -34,4 +34,9 @@ export class QuranApiController {
     async getRandomAyahFromSurah(@Param('id') id: string, @Query('reciterId') reciterId?: string, @Query('tafsirId') tafsirId?: string) {
         return this.quranApiService.getRandomAyahFromSurah(Number(id), Number(reciterId), Number(tafsirId));
     }
+
+    @Get('verses-from-surah/:id')
+    async getVersesOfSurah(@Param('id') id: string, @Query('reciterId') reciterId?: string) {
+        return this.quranApiService.getVersesOfSurah(Number(id), Number(reciterId));
+    }
 }

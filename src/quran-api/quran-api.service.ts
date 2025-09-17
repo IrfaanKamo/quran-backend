@@ -135,6 +135,29 @@ export class QuranApiService {
         }
     }
 
+    async getVersesOfSurah(surahId: number, reciterId: number): Promise<any> {
+        const url = `${this.baseUrl}/verses/by_chapter/${surahId}`;
+        
+        const authToken = await this.getValidAccessToken();
+        const headers = this.generateHeaders(authToken);
+
+        const params = {
+            words: "true",
+            translations: "85",
+            audio: reciterId.toString(),
+        }
+
+        try {
+            const response = await firstValueFrom(
+                this.httpService.get(url, { headers, params }),
+            );
+            return response.data;
+        }
+        catch (error) {
+            this.logger.error(`Error fetching verses for surah ${surahId}`, error);
+        }
+    }
+
     async getRandomAyahFromSurah(surahId: number, reciterId: number, tafsirId: number): Promise<any> {
         const url = `${this.baseUrl}/verses/random`;
 
