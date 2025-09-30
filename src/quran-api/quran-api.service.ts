@@ -146,7 +146,8 @@ export class QuranApiService {
             translations: "85",
             audio: reciterId.toString(),
             word_fields: "text_uthmani, text_indopak, text_uthmani_simple, location",
-            fields: "text_uthmani, text_indopak, text_uthmani_simple"
+            fields: "text_uthmani, text_indopak, text_uthmani_simple",
+            per_page: 50
         }
 
         try {
