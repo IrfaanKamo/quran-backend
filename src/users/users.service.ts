@@ -13,26 +13,37 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const { name, email, password } = createUserDto;
+    const { username, email, password } = createUserDto;
 
     const passwordHash = await bcrypt.hash(password, 10);
 
     try {
       const createdUser = await this.userModel.create({
-        name,
+        username,
         email,
         passwordHash,
       });
 
       const userObject: any = createdUser.toObject();
       delete userObject.passwordHash;
-      
+
       return userObject;
-    } catch (err: any) {
-      if (err.code === 11000 && err.keyPattern?.email) {
-        throw new ConflictException('Email already exists');
+    } catch (error: any) {
+      if (error.keyPattern.username) {
+        throw new ConflictException({
+          field: 'username',
+          message: 'Username already exists',
+        });
       }
-      throw err;
+
+      if (error.keyPattern.email) {
+        throw new ConflictException({
+          field: 'email',
+          message: 'Email already exists',
+        });
+      }
+
+      throw error;
     }
   }
 
@@ -43,5 +54,9 @@ export class UsersService {
 
   async findByEmail(email: string) {
     return this.userModel.findOne({ email }).exec();
+  }
+
+  async findByUsername(username: string) {
+    return this.userModel.findOne({ username }).exec();
   }
 }
