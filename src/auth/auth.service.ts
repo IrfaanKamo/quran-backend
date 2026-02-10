@@ -31,8 +31,8 @@ export class AuthService {
     if (!user || !user.refreshToken)
       throw new ForbiddenException('Access Denied');
 
-    const rtMatches = await bcrypt.compare(rt, user.refreshToken);
-    if (!rtMatches) throw new ForbiddenException('Access Denied');
+    if (rt !== user.refreshToken)
+      throw new UnauthorizedException();
 
     const tokens = await this.getTokens(user._id.toString(), user.username);
     await this.updateRefreshToken(user._id.toString(), tokens.refreshToken);
@@ -40,8 +40,7 @@ export class AuthService {
   }
 
   async updateRefreshToken(userId: string, refreshToken: string) {
-    const hashedRt = await bcrypt.hash(refreshToken, 10);
-    await this.usersService.update(userId, { refreshToken: hashedRt });
+    await this.usersService.update(userId, { refreshToken });
   }
 
   async getTokens(userId: string, username: string) {
@@ -49,14 +48,14 @@ export class AuthService {
       this.jwtService.signAsync(
         { sub: userId, username },
         {
-          secret: 'at-secret',
+          secret: process.env.JWT_ACCESS_SECRET,
           expiresIn: '15m',
         },
       ),
       this.jwtService.signAsync(
         { sub: userId, username },
         {
-          secret: 'rt-secret',
+          secret: process.env.JWT_REFRESH_SECRET,
           expiresIn: '7d',
         },
       ),

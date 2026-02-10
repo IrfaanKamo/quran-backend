@@ -16,7 +16,7 @@ export class User {
   @Prop()
   passwordHash: string;
 
-  @Prop()
+  @Prop({ type: String, default: null })
   refreshToken: string | null;
 }
 
