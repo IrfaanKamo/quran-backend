@@ -7,7 +7,7 @@ export type UserDocument = User & Document;
   timestamps: true,
 })
 export class User {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   username: string;
 
   @Prop({ required: true, unique: true, index: true })
@@ -15,6 +15,9 @@ export class User {
 
   @Prop()
   passwordHash: string;
+
+  @Prop()
+  refreshToken: string | null;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

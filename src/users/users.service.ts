@@ -52,11 +52,20 @@ export class UsersService {
     return users;
   }
 
-  async findByEmail(email: string) {
-    return this.userModel.findOne({ email }).exec();
+  async findById(id: string): Promise<UserDocument | null> {
+    return this.userModel.findById(id).exec();
   }
 
-  async findByUsername(username: string) {
+  async findByUsername(username: string): Promise<UserDocument | null> {
     return this.userModel.findOne({ username }).exec();
+  }
+
+  async update(
+    id: string,
+    updateData: Partial<User>,
+  ): Promise<UserDocument | null> {
+    return this.userModel
+      .findByIdAndUpdate(id, updateData, { new: true })
+      .exec();
   }
 }
