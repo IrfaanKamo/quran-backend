@@ -14,11 +14,23 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(username: string, pass: string) {
+  async register(username: string, email: string, password: string) {
+    const user = await this.usersService.create({
+      username,
+      email,
+      password,
+    });
+
+    const tokens = await this.getTokens(user._id.toString(), user.username);
+    await this.updateRefreshToken(user._id.toString(), tokens.refreshToken);
+    return tokens;
+  }
+
+  async login(username: string, password: string) {
     const user = await this.usersService.findByUsername(username);
     if (!user) throw new UnauthorizedException();
 
-    const isMatch = await bcrypt.compare(pass, user.passwordHash);
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) throw new UnauthorizedException();
 
     const tokens = await this.getTokens(user._id.toString(), user.username);
@@ -31,8 +43,7 @@ export class AuthService {
     if (!user || !user.refreshToken)
       throw new ForbiddenException('Access Denied');
 
-    if (rt !== user.refreshToken)
-      throw new UnauthorizedException();
+    if (rt !== user.refreshToken) throw new UnauthorizedException();
 
     const tokens = await this.getTokens(user._id.toString(), user.username);
     await this.updateRefreshToken(user._id.toString(), tokens.refreshToken);
@@ -49,7 +60,7 @@ export class AuthService {
         { sub: userId, username },
         {
           secret: process.env.JWT_ACCESS_SECRET,
-          expiresIn: '15m',
+          expiresIn: '30m',
         },
       ),
       this.jwtService.signAsync(

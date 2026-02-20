@@ -13,7 +13,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [process.env.FRONTEND_URL],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: false, // no cookies since anonymous
+    credentials: true,
   });
 
   // Security headers

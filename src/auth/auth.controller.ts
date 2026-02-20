@@ -4,10 +4,41 @@ import { AuthService } from './auth.service';
 import { SignInDto } from './dto/sign-in.dto';
 import { AtGuard } from './guards/at.guard';
 import { RtGuard } from './guards/rt.guard';
+import { RegisterDto } from './dto/register.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
+@Post('register')
+async register(
+  @Body() registerDto: RegisterDto,
+  @Res({ passthrough: true }) res: Express.Response,
+) {
+  const tokens = await this.authService.register(
+    registerDto.username,
+    registerDto.email,
+    registerDto.password
+  );
+
+  res.cookie('access_token', tokens.accessToken, { 
+    httpOnly: true, 
+    secure: true, 
+    sameSite: 'strict' 
+  });
+  
+  res.cookie('refresh_token', tokens.refreshToken, { 
+    httpOnly: true, 
+    secure: true, 
+    sameSite: 'strict', 
+    path: '/auth/refresh' 
+  });
+
+  return { 
+    message: 'Registration successful',
+    user: { username: registerDto.username } 
+  };
+}
 
 @Post('login')
 async login(
