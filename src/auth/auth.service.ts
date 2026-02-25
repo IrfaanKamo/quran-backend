@@ -23,7 +23,7 @@ export class AuthService {
 
     const tokens = await this.getTokens(user._id.toString(), user.username);
     await this.updateRefreshToken(user._id.toString(), tokens.refreshToken);
-    return tokens;
+    return { user, tokens };
   }
 
   async login(username: string, password: string) {
@@ -35,7 +35,7 @@ export class AuthService {
 
     const tokens = await this.getTokens(user._id.toString(), user.username);
     await this.updateRefreshToken(user._id.toString(), tokens.refreshToken);
-    return tokens;
+    return { user, tokens };
   }
 
   async refreshTokens(userId: string, rt: string) {

@@ -10,64 +10,66 @@ import { RegisterDto } from './dto/register.dto';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-@Post('register')
-async register(
-  @Body() registerDto: RegisterDto,
-  @Res({ passthrough: true }) res: Express.Response,
-) {
-  const tokens = await this.authService.register(
-    registerDto.username,
-    registerDto.email,
-    registerDto.password
-  );
+  @Post('register')
+  async register(
+    @Body() registerDto: RegisterDto,
+    @Res({ passthrough: true }) res: Express.Response,
+  ) {
+    const { user, tokens } = await this.authService.register(
+      registerDto.username,
+      registerDto.email,
+      registerDto.password,
+    );
 
-  res.cookie('access_token', tokens.accessToken, { 
-    httpOnly: true, 
-    secure: true, 
-    sameSite: 'strict' 
-  });
-  
-  res.cookie('refresh_token', tokens.refreshToken, { 
-    httpOnly: true, 
-    secure: true, 
-    sameSite: 'strict', 
-    path: '/auth/refresh' 
-  });
+    res.cookie('access_token', tokens.accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
 
-  return { 
-    message: 'Registration successful',
-    user: { username: registerDto.username } 
-  };
-}
+    res.cookie('refresh_token', tokens.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      path: '/auth/refresh',
+    });
 
-@Post('login')
-async login(
-  @Body() loginDto: SignInDto,
-  @Res({ passthrough: true }) res: Express.Response,
-) {
-  const tokens = await this.authService.login(
-    loginDto.username, 
-    loginDto.password
-  );
+    return {
+      message: 'Registration successful',
+      user: { email: user.email, username: user.username },
+      expiresInMinutes: 30,
+    };
+  }
 
-  res.cookie('access_token', tokens.accessToken, { 
-    httpOnly: true, 
-    secure: true, 
-    sameSite: 'strict' 
-  });
-  
-  res.cookie('refresh_token', tokens.refreshToken, { 
-    httpOnly: true, 
-    secure: true, 
-    sameSite: 'strict', 
-    path: '/auth/refresh' 
-  });
+  @Post('login')
+  async login(
+    @Body() loginDto: SignInDto,
+    @Res({ passthrough: true }) res: Express.Response,
+  ) {
+    const { user, tokens } = await this.authService.login(
+      loginDto.username,
+      loginDto.password,
+    );
 
-  return { 
-    message: 'Login successful',
-    user: { username: loginDto.username } 
-  };
-}
+    res.cookie('access_token', tokens.accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+
+    res.cookie('refresh_token', tokens.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      path: '/auth/refresh',
+    });
+
+    return {
+      message: 'Login successful',
+      user: { email: user.email, username: user.username },
+      expiresInMinutes: 30,
+    };
+  }
 
   @UseGuards(RtGuard)
   @Post('refresh')
