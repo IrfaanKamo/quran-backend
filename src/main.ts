@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -12,7 +13,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [process.env.FRONTEND_URL],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: false, // no cookies since anonymous
+    credentials: true,
   });
 
   // Security headers
@@ -28,6 +29,9 @@ async function bootstrap() {
       message: 'Too many requests, please try again later.',
     }),
   );
+
+  // Cookie reader
+  app.use(cookieParser());
 
   await app.listen(process.env.PORT ?? 3001);
 }
