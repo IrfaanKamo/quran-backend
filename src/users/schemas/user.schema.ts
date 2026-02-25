@@ -13,7 +13,7 @@ export class User {
   @Prop({ required: true, unique: true, index: true })
   email: string;
 
-  @Prop()
+  @Prop({ required: true, select: false })
   passwordHash: string;
 
   @Prop({ type: String, default: null })

@@ -6,12 +6,10 @@ import { UsersController } from './users.controller';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema },
-    ]),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   providers: [UsersService],
   controllers: [UsersController],
-  exports: [UsersService]
+  exports: [UsersService],
 })
 export class UsersModule {}

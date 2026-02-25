@@ -4,13 +4,21 @@ import { Request } from 'express';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
+export class RefreshTokenStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
   constructor() {
+    const secret = process.env.JWT_REFRESH_SECRET;
+    if (!secret) {
+      throw new Error('JWT_REFRESH_SECRET environment variable must be set');
+    }
+    
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req: Request) => req?.cookies?.['refresh_token'],
       ]),
-      secretOrKey: process.env.JWT_REFRESH_SECRET || 'rt-secret',
+      secretOrKey: secret,
       passReqToCallback: true,
     });
   }
