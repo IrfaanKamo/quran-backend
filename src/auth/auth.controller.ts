@@ -36,7 +36,7 @@ export class AuthController {
 
     return {
       message: 'Registration successful',
-      user: { email: user.email, username: user.username },
+      user,
       expiresInMinutes: 30,
     };
   }
@@ -66,7 +66,7 @@ export class AuthController {
 
     return {
       message: 'Login successful',
-      user: { email: user.email, username: user.username },
+      user,
       expiresInMinutes: 30,
     };
   }

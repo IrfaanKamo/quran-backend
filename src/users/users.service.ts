@@ -1,9 +1,14 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -24,10 +29,7 @@ export class UsersService {
         passwordHash,
       });
 
-      const userObject: any = createdUser.toObject();
-      delete userObject.passwordHash;
-
-      return userObject;
+      return this.userWihtoutSensitiveFields(createdUser);
     } catch (error: any) {
       if (error.keyPattern.username) {
         throw new ConflictException({
@@ -62,10 +64,44 @@ export class UsersService {
 
   async update(
     id: string,
-    updateData: Partial<User>,
+    { newPassword, currentPassword, ...fields }: UpdateUserDto,
   ): Promise<UserDocument | null> {
-    return this.userModel
-      .findByIdAndUpdate(id, updateData, { new: true })
+    if (newPassword) {
+      if (!currentPassword) {
+        throw new UnauthorizedException(
+          'Current password is required to change password',
+        );
+      }
+
+      const user = await this.userModel.findById(id).exec();
+      if (!user) return null;
+
+      const isPasswordValid = await bcrypt.compare(
+        currentPassword,
+        user.passwordHash,
+      );
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Current password is incorrect');
+      }
+
+      (fields as any).passwordHash = await bcrypt.hash(newPassword, 10);
+    }
+
+    const updatedUser = await this.userModel
+      .findByIdAndUpdate(id, fields, { new: true })
       .exec();
+
+    if (!updatedUser) return null;
+
+    return this.userWihtoutSensitiveFields(updatedUser);
+  }
+
+  userWihtoutSensitiveFields(user: any) {
+    const userObject: any = user.toObject();
+
+    delete userObject.passwordHash;
+    delete userObject.refreshToken;
+
+    return userObject;
   }
 }

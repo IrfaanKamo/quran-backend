@@ -35,7 +35,10 @@ export class AuthService {
 
     const tokens = await this.getTokens(user._id.toString(), user.username);
     await this.updateRefreshToken(user._id.toString(), tokens.refreshToken);
-    return { user, tokens };
+    return {
+      user: this.usersService.userWihtoutSensitiveFields(user),
+      tokens,
+    };
   }
 
   async refreshTokens(userId: string, rt: string) {
